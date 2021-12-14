@@ -1,3 +1,4 @@
+import { formatRelativeDate } from "./js/helpers.js"
 import store from "./js/Store.js"
 
 const TAB_TYPE = {
@@ -26,8 +27,10 @@ class App extends React.Component {
 
   componentDidMount() {
     const keywordList = store.getKeywordList()
+    const historyList = store.getHistoryList()
     this.setState({
       keywordList,
+      historyList,
     })
   }
 
@@ -48,9 +51,11 @@ class App extends React.Component {
 
   search(searchKeyword) {
     const searchResult = store.search(searchKeyword)
+    const historyList = store.getHistoryList()
     this.setState({
       searchResult,
       submitted: true,
+      historyList,
     })
   }
 
@@ -73,6 +78,24 @@ class App extends React.Component {
       searchKeyword,
     })
     this.search(searchKeyword)
+  }
+
+  handleClickHistory(event, searchKeyword) {
+    if (event.target.closest(".btn-remove")) {
+      return this.handleClickRemoveHistory(searchKeyword)
+    }
+    this.setState({
+      searchKeyword,
+    })
+    this.search(searchKeyword)
+  }
+
+  handleClickRemoveHistory(searchKeyword) {
+    store.removeHistory(searchKeyword)
+    const historyList = store.getHistoryList()
+    this.setState({
+      historyList,
+    })
   }
 
   render() {
@@ -111,12 +134,19 @@ class App extends React.Component {
 
     const historyList = (
       <ul className="list">
-        {store.getHistoryList().length === 0 ? (
+        {this.state.historyList.length === 0 ? (
           <div className="empty-box">최근 검색어가 없습니다</div>
         ) : (
-          store
-            .getHistoryList()
-            .map(({ id, keyword, date }) => <li key={id}>{keyword}</li>)
+          this.state.historyList.map(({ id, keyword, date }) => (
+            <li
+              key={id}
+              onClick={(event) => this.handleClickHistory(event, keyword)}
+            >
+              <span>{keyword}</span>
+              <span className="date">{formatRelativeDate(date)}</span>
+              <button className="btn-remove"></button>
+            </li>
+          ))
         )}
       </ul>
     )

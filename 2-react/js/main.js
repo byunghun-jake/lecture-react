@@ -8,25 +8,37 @@ class App extends React.Component {
   }
 
   handleChangeInput(event) {
+    if (!event.target.value) {
+      return this.handleReset()
+    }
     this.setState({
       searchKeyword: event.target.value,
     })
   }
 
+  handleSubmit(event) {
+    event.preventDefault()
+    console.log("handleSubmit", this.state.searchKeyword)
+  }
+
+  handleReset() {
+    console.log("handleReset", "검색 결과를 삭제합니다")
+    this.setState({
+      searchKeyword: "",
+    })
+  }
+
   render() {
-    let resetButton = null
-
-    if (this.state.searchKeyword.length > 0) {
-      resetButton = <button type="reset" className="btn-reset"></button>
-    }
-
     return (
       <>
         <header>
           <h2 className="container">검색</h2>
         </header>
         <div className="container">
-          <form id="search-form-view">
+          <form
+            onSubmit={(event) => this.handleSubmit(event)}
+            onReset={() => this.handleReset()}
+          >
             <input
               type="text"
               placeholder="검색어를 입력하세요"
@@ -34,7 +46,9 @@ class App extends React.Component {
               value={this.state.searchKeyword}
               onChange={(event) => this.handleChangeInput(event)}
             />
-            {resetButton}
+            {this.state.searchKeyword && (
+              <button type="reset" className="btn-reset"></button>
+            )}
           </form>
         </div>
       </>

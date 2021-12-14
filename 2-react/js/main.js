@@ -1,5 +1,15 @@
 import store from "./js/Store.js"
 
+const TAB_TYPE = {
+  KEYWORD: "KEYWORD",
+  HISTORY: "HISTORY",
+}
+
+const TAB_LABEL = {
+  [TAB_TYPE.KEYWORD]: "추천 검색어",
+  [TAB_TYPE.HISTORY]: "최근 검색어",
+}
+
 class App extends React.Component {
   constructor() {
     super()
@@ -8,7 +18,17 @@ class App extends React.Component {
       searchKeyword: "",
       searchResult: [],
       submitted: false,
+      selectedTab: TAB_TYPE.KEYWORD,
+      keywordList: [],
+      historyList: [],
     }
+  }
+
+  componentDidMount() {
+    const keywordList = store.getKeywordList()
+    this.setState({
+      keywordList,
+    })
   }
 
   handleChangeInput(event) {
@@ -42,6 +62,19 @@ class App extends React.Component {
     })
   }
 
+  handleClickTab(tabType) {
+    this.setState({
+      selectedTab: tabType,
+    })
+  }
+
+  handleClickKeyword(searchKeyword) {
+    this.setState({
+      searchKeyword,
+    })
+    this.search(searchKeyword)
+  }
+
   render() {
     const searchForm = (
       <form
@@ -59,6 +92,52 @@ class App extends React.Component {
           <button type="reset" className="btn-reset"></button>
         )}
       </form>
+    )
+
+    const keywordList = (
+      <ul className="list">
+        {this.state.keywordList.length === 0 ? (
+          <div className="empty-box">추천 검색어가 없습니다</div>
+        ) : (
+          this.state.keywordList.map(({ id, keyword }, index) => (
+            <li key={id} onClick={() => this.handleClickKeyword(keyword)}>
+              <span className="number">{index + 1}</span>
+              <span>{keyword}</span>
+            </li>
+          ))
+        )}
+      </ul>
+    )
+
+    const historyList = (
+      <ul className="list">
+        {store.getHistoryList().length === 0 ? (
+          <div className="empty-box">최근 검색어가 없습니다</div>
+        ) : (
+          store
+            .getHistoryList()
+            .map(({ id, keyword, date }) => <li key={id}>{keyword}</li>)
+        )}
+      </ul>
+    )
+
+    const tabs = (
+      <>
+        <ul className="tabs">
+          {Object.values(TAB_TYPE).map((t) => (
+            <li
+              key={t}
+              className={t === this.state.selectedTab ? "active" : null}
+              onClick={() => this.handleClickTab(t)}
+            >
+              {TAB_LABEL[t]}
+            </li>
+          ))}
+        </ul>
+        {this.state.selectedTab === TAB_TYPE.KEYWORD
+          ? keywordList
+          : historyList}
+      </>
     )
 
     const searchResult =
@@ -82,7 +161,9 @@ class App extends React.Component {
         </header>
         <div className="container">
           {searchForm}
-          <div className="content">{this.state.submitted && searchResult}</div>
+          <div className="content">
+            {this.state.submitted ? searchResult : tabs}
+          </div>
         </div>
       </>
     )

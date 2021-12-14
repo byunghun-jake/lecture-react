@@ -1,4 +1,4 @@
-import { createPastDate } from "./helpers.js";
+import { createPastDate } from "./helpers.js"
 
 const storage = {
   keywordData: [
@@ -51,6 +51,6 @@ const storage = {
         "https://images.unsplash.com/photo-1550304943-4f24f54ddde9?ixid=MXwxMjA3fDB8MHxwaG90by1yZWxhdGVkfDE0fHx8ZW58MHx8fA%3D%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=60",
     },
   ],
-};
+}
 
-export default storage;
+export default storage
